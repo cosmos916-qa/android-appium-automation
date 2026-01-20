@@ -25,15 +25,38 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        // JDK 23을 설치했더라도, Android 모듈은 보통 LTS(17) 타겟이 제일 안정적.
+        //  "실행 JVM"은 23으로 두고, 컴파일 타겟은 17로 고정해서 호환성 확보.
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+        //sourceCompatibility JavaVersion.VERSION_11
+        //targetCompatibility JavaVersion.VERSION_11
     }
 }
 
 dependencies {
     implementation libs.appcompat
     implementation libs.material
-    testImplementation libs.junit
+// -----------------------------
+    // Unit tests (Local JVM)
+    // - Appium/Selenium 테스트 코드는 "androidTest"보다 "test"에 두는 게 관리가 편함
+    // -----------------------------
+    testImplementation libs.junit          // (기존 JUnit4 유지 가능: 일단은 안정 우선)
+    testImplementation libs.appiumJavaClient
+    testImplementation libs.seleniumJava
+    testImplementation libs.slf4jSimple // 로그 경고 줄이기용(선택이지만 추천)
+
+    // -----------------------------
+    // Instrumentation tests (Device/Emulator)
+    // - AndroidX 기반 UI 테스트(지금은 유지)
+    // -----------------------------
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
+}
+
+tasks.withType(Test).configureEach {
+    // 테스트 로그가 너무 조용할 때 확인용
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
 }

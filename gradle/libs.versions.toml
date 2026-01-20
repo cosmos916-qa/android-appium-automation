@@ -6,12 +6,21 @@ espressoCore = "3.5.1"
 appcompat = "1.6.1"
 material = "1.10.0"
 
+appium = "9.2.2"
+selenium = "4.20.0"
+slf4j = "2.0.13"
+
+
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+
+appiumJavaClient = { module = "io.appium:java-client", version.ref = "appium" }
+seleniumJava = { module = "org.seleniumhq.selenium:selenium-java", version.ref = "selenium" }
+slf4jSimple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
