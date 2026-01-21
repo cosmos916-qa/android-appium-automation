@@ -13,3 +13,7 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Service account key (never commit)
+app/src/test/resources/credentials/
+*.json

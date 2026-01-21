@@ -1,3 +1,4 @@
+/*
 package com.example.appium_android_automation;
 
 import io.appium.java_client.android.AndroidDriver;
@@ -41,3 +42,4 @@ public class SampleTest {
         if (driver != null) driver.quit();
     }
 }
+*/

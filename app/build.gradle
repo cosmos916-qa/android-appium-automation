@@ -52,6 +52,11 @@ dependencies {
     // -----------------------------
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
+
+    //Google Sheets API 추가
+    testImplementation "com.google.api-client:google-api-client:2.6.0"
+    testImplementation "com.google.oauth-client:google-oauth-client-jetty:1.36.0"
+    testImplementation "com.google.apis:google-api-services-sheets:v4-rev20230815-2.0.0"
 }
 
 tasks.withType(Test).configureEach {
