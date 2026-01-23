@@ -2,6 +2,8 @@ package com.example.appium_android_automation.testcase;
 
 import com.example.appium_android_automation.flow.StartAppFlow;
 import com.example.appium_android_automation.infra.AppiumConfig;
+import com.example.appium_android_automation.infra.ScreenHelper;
+import com.example.appium_android_automation.infra.TouchActionHelper;
 import com.example.appium_android_automation.main.BaseTestCase;
 import com.example.appium_android_automation.marker.ImageAssert;
 import org.junit.FixMethodOrder;
@@ -25,9 +27,7 @@ import static org.junit.Assert.*;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)  // TC01, TC02 순서 보장
 public class SmokeTestSuite extends BaseTestCase {
 
-    private static final String TARGET_LOGO_IMAGE = "images/target_logo.png";
-
-    @Test
+    //@Test
     public void TC01_앱_실행_검증() throws Exception {
         System.out.println("=== TC01: 앱 실행 검증 시작 ===");
 
@@ -36,7 +36,7 @@ public class SmokeTestSuite extends BaseTestCase {
         boolean appStarted = StartAppFlow.run(driver);
         System.out.println("→ 앱 실행 결과: " + (appStarted ? "성공 ✓" : "실패 ✗"));
 
-        // 결과 기록 (동적 계산 사용: TC01 → F3 셀)
+        // 결과 기록 (동적 계산 사용: TC01 → F4 셀)
         System.out.println("[2/2] 결과 기록 중...");
         recordResult(1, "StartApp", appStarted);
 
@@ -46,7 +46,7 @@ public class SmokeTestSuite extends BaseTestCase {
         System.out.println("=== TC01 완료 ===\n");
     }
 
-    @Test
+    //@Test
     public void TC02_메인_화면_로고_검증() throws Exception {
         System.out.println("=== TC02: 메인 화면 로고 검증 시작 ===");
 
@@ -65,7 +65,7 @@ public class SmokeTestSuite extends BaseTestCase {
         System.out.println("[2/3] 메인 로고 이미지 검증 중...");
         boolean logoVisible = ImageAssert.waitUntilImageVisible(
                 driver,
-                TARGET_LOGO_IMAGE,
+                AppiumConfig.TARGET_LOGO_RESOURCE,
                 AppiumConfig.MAIN_MARKER_TIMEOUT_SEC
         );
         System.out.println("→ 로고 검증 결과: " + (logoVisible ? "성공 ✓" : "실패 ✗"));
@@ -80,6 +80,78 @@ public class SmokeTestSuite extends BaseTestCase {
         System.out.println("=== TC02 완료 ===\n");
     }
 
-    // TC03, TC04, TC05... 여기에 메서드로 계속 추가
-    // 10-15개 정도까지는 이 파일에서 관리 가능
+    /**
+     * TC03: 캐릭터 볼 당기기 게임 시작 검증
+     *
+     * <h3>검증 목적</h3>
+     * 트릭컬 리바이브의 핵심 인터랙션인 캐릭터 볼 당기기를 통한 게임 시작 확인
+     *
+     * <h3>검증 전략</h3>
+     * <ol>
+     *   <li>전제조건: 메인 화면 진입 확인 (TC02 로고 검증 완료)</li>
+     *   <li>Action: 좌표 기반 드래그 (540,1730 → 540,1500)</li>
+     *   <li>Verification: 게임 시작 후 특정 UI 이미지 등장 확인</li>
+     * </ol>
+     *
+     * <h3>Pass 조건</h3>
+     * - 드래그 후 게임 시작 마커 이미지가 15초 내 등장
+     * - 또는 게임 로비/스테이지 화면의 고유 UI 요소 확인
+     */
+    @Test
+    public void TC03_캐릭터_볼당기기_게임시작_검증() throws Exception {
+        System.out.println("=== TC03: 캐릭터 볼당기기 게임시작 검증 시작 ===");
+
+        // [Step 1] 전제조건 확인
+        System.out.println("[1/5] 전제조건 확인: 메인 화면 진입 체크...");
+        boolean appRunning = StartAppFlow.run(driver);
+
+        if (!appRunning) {
+            recordBlock(3, "CheekDragStart", "앱 실행 불가 (TC01 선행 필요)");
+            fail("TC03 실행 불가: 앱이 실행되지 않음");
+            return;
+        }
+
+        boolean onMainScreen = ImageAssert.waitUntilImageVisible(
+                driver,
+                AppiumConfig.TARGET_LOGO_RESOURCE,
+                10
+        );
+
+        if (!onMainScreen) {
+            recordBlock(3, "CheekDragStart", "메인 화면 미진입 (TC02 선행 필요)");
+            fail("TC03 실행 불가: 메인 화면이 아님");
+            return;
+        }
+        System.out.println("→ 전제조건 통과: 메인 화면 확인 ✓");
+
+        // [Step 2] 화면 정보 출력 (디버깅용)
+        System.out.println("[2/5] 화면 정보 수집 중...");
+        ScreenHelper.printScreenInfo(driver);
+
+        // [Step 3] 캐릭터 볼 당기기 (⭐ 개선된 해상도 독립적 버전!)
+        System.out.println("[3/5] 캐릭터 볼 당기기 드래그 실행 중...");
+        TouchActionHelper.dragCheekAdaptive(driver);  // ⭐ 핵심 변경!
+        System.out.println("→ 드래그 완료 ✓");
+
+        // [Step 4] 게임 시작 로딩 대기
+        System.out.println("[4/5] 게임 시작 로딩 대기 중...");
+        Thread.sleep(3000);
+
+        // [Step 5] 게임 시작 확인
+        System.out.println("[5/5] 게임 시작 확인 중...");
+        boolean gameStarted = ImageAssert.waitUntilImageVisible(
+                driver,
+                AppiumConfig.GAME_STARTED_MARKER_RESOURCE,
+                AppiumConfig.GAME_START_VERIFY_TIMEOUT_SEC
+        );
+
+        System.out.println("→ 게임 시작 검증 결과: " + (gameStarted ? "성공 ✓" : "실패 ✗"));
+
+        // 결과 기록 (TC03 → F6 셀)
+        recordResult(3, "CheekDragStart", gameStarted);
+
+        assertTrue("TC03 실패: 캐릭터 볼당기기 게임 시작 미동작", gameStarted);
+        System.out.println("=== TC03 완료 ===\n");
+    }
+
 }
