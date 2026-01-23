@@ -3,6 +3,7 @@ package com.example.appium_android_automation.infra;
 import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.ScreenOrientation;
+import org.openqa.selenium.Point;
 import org.openqa.selenium.interactions.PointerInput;
 import org.openqa.selenium.interactions.Sequence;
 
@@ -109,6 +110,59 @@ public class TouchActionHelper {
         System.out.println("=== 캐릭터 볼 당기기 완료 ===\n");
     }
 
+    //작은 캐릭터(좌표가 안맞는 경우 사용할 수 있는 함수)
+    public static void dragCheekWithOffset(AndroidDriver driver) {
+        System.out.println("\n=== 캐릭터 볼 당기기 (우하단 오프셋 버전) ===");
+
+        // [Step 1] 화면 정보 수집
+        Dimension size = ScreenHelper.getScreenSize(driver);
+        ScreenOrientation orientation = ScreenHelper.getOrientation(driver);
+
+        int screenWidth = size.getWidth();
+        int screenHeight = size.getHeight();
+
+        System.out.println("화면 해상도: " + screenWidth + " x " + screenHeight);
+        System.out.println("화면 방향: " + orientation);
+
+        // [Step 2] 기준 좌표 계산
+        int centerX = screenWidth / 2;
+        int centerY = screenHeight / 2;
+
+        // [Step 3] 우하단 10% 오프셋 적용
+        int offsetX = (int)(screenWidth * 0.1);   // 화면 너비의 10%
+        int offsetY = (int)(screenHeight * 0.1);  // 화면 높이의 10%
+
+        int startX = centerX + offsetX;  // 중앙에서 우측으로 10%
+        int startY = centerY + offsetY;  // 중앙에서 하단으로 10%
+
+        // [Step 4] 드래그 거리 계산 (화면 너비의 20%)
+        int dragDistance = (int)(screenWidth * 0.2);
+
+        int endX = startX - dragDistance;  // 좌측으로 드래그
+        int endY = startY;                 // Y축 고정 (수평 드래그)
+
+        // [Step 5] 안전장치: 화면 경계 확인
+        int margin = 50;  // 화면 가장자리 50px 여백 확보
+        startX = Math.max(margin, Math.min(screenWidth - margin, startX));
+        startY = Math.max(margin, Math.min(screenHeight - margin, startY));
+        endX = Math.max(margin, Math.min(screenWidth - margin, endX));
+        endY = Math.max(margin, Math.min(screenHeight - margin, endY));
+
+        // [Step 6] 계산 결과 출력
+        System.out.println("좌표 계산 결과:");
+        System.out.println("  화면 중앙: (" + centerX + ", " + centerY + ")");
+        System.out.println("  오프셋 적용: 우+" + offsetX + "px, 하+" + offsetY + "px");
+        System.out.println("  시작 좌표: (" + startX + ", " + startY + ") [중앙 우하단 10%]");
+        System.out.println("  종료 좌표: (" + endX + ", " + endY + ")");
+        System.out.println("  드래그 거리: " + dragDistance + "px (" +
+                String.format("%.0f", (dragDistance * 100.0 / screenWidth)) + "% 좌측)");
+
+        // [Step 7] 실제 드래그 수행
+        dragAndDrop(driver, startX, startY, endX, endY, AppiumConfig.CHEEK_DRAG_DURATION_MS);
+
+        System.out.println("=== 캐릭터 볼 당기기 완료 ===\n");
+    }
+
     /**
      * 기존 하드코딩 버전 (하위 호환성 유지)
      * @deprecated 해상도 독립적 버전인 dragCheekAdaptive() 사용 권장
@@ -124,5 +178,48 @@ public class TouchActionHelper {
                 AppiumConfig.CHEEK_DRAG_END_Y,
                 AppiumConfig.CHEEK_DRAG_DURATION_MS
         );
+    }
+    /**
+     * 지정된 좌표를 터치합니다 (단순 탭).
+     *
+     * @param driver AndroidDriver 인스턴스
+     * @param x X 좌표
+     * @param y Y 좌표
+     */
+    public static void tap(AndroidDriver driver, int x, int y) {
+        System.out.println("[TouchAction] 터치 실행: (" + x + ", " + y + ")");
+
+        PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
+        Sequence tapSequence = new Sequence(finger, 1);
+
+        // 1. 터치 위치로 포인터 이동
+        tapSequence.addAction(finger.createPointerMove(
+                Duration.ZERO,
+                PointerInput.Origin.viewport(),
+                x, y
+        ));
+
+        // 2. 터치 다운
+        tapSequence.addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
+
+        // 3. 짧은 대기 (자연스러운 터치 느낌)
+        tapSequence.addAction(new org.openqa.selenium.interactions.Pause(finger, Duration.ofMillis(100)));
+
+        // 4. 터치 업
+        tapSequence.addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
+
+        driver.perform(List.of(tapSequence));
+
+        System.out.println("[TouchAction] 터치 완료 ✓");
+    }
+
+    /**
+     * Point 객체를 받아 해당 좌표를 터치합니다.
+     *
+     * @param driver AndroidDriver 인스턴스
+     * @param point 터치할 좌표
+     */
+    public static void tap(AndroidDriver driver, Point point) {
+        tap(driver, point.getX(), point.getY());
     }
 }

@@ -43,6 +43,58 @@ public class ImageAssert {
             return false;
         }
     }
+    /**
+     * 이미지를 찾고 중앙 좌표를 반환합니다 (터치용).
+     *
+     * @param driver AndroidDriver 인스턴스
+     * @param resourcePath 이미지 리소스 경로
+     * @param timeoutSec 타임아웃 (초)
+     * @return 이미지 중앙 좌표, 실패 시 null
+     */
+    public static Point findImageCenter(AndroidDriver driver, String resourcePath, int timeoutSec) {
+        System.out.println("[IMG] 이미지 좌표 탐색 시작: " + resourcePath + " (타임아웃=" + timeoutSec + "초)");
+
+        try {
+            String b64 = loadResourceAsBase64(resourcePath);
+
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSec));
+            WebElement element = wait.until(d -> {
+                try {
+                    return d.findElement(AppiumBy.image(b64));
+                } catch (NoSuchElementException ex) {
+                    return null;
+                }
+            });
+
+            if (element != null) {
+                // 이미지 요소의 위치와 크기 가져오기
+                Point location = element.getLocation();
+                Dimension size = element.getSize();
+
+                // 중앙 좌표 계산
+                int centerX = location.getX() + (size.getWidth() / 2);
+                int centerY = location.getY() + (size.getHeight() / 2);
+
+                System.out.println("[IMG] 이미지 발견 ✓");
+                System.out.println("  위치: (" + location.getX() + ", " + location.getY() + ")");
+                System.out.println("  크기: " + size.getWidth() + " x " + size.getHeight());
+                System.out.println("  중앙 좌표: (" + centerX + ", " + centerY + ")");
+
+                return new Point(centerX, centerY);
+            } else {
+                System.out.println("[IMG] 이미지 미발견 ✗");
+                return null;
+            }
+
+        } catch (TimeoutException te) {
+            System.out.println("[IMG] TIMEOUT - 이미지 좌표 탐색 실패");
+            return null;
+        } catch (Exception e) {
+            System.err.println("[IMG] ERROR: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     private static String loadResourceAsBase64(String resourcePath) throws Exception {
         InputStream in = ImageAssert.class.getClassLoader().getResourceAsStream(resourcePath);
@@ -52,4 +104,5 @@ public class ImageAssert {
         byte[] bytes = in.readAllBytes();
         return Base64.getEncoder().encodeToString(bytes);
     }
+
 }

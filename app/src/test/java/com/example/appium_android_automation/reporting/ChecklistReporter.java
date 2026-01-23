@@ -23,7 +23,7 @@ public class ChecklistReporter {
     private final String sheetName;
 
     // 스프레드시트 구조 상수
-    private static final String RESULT_COLUMN = "F";  // Result 컬럼
+    private static final String RESULT_COLUMN = "G";  // Result 컬럼
     private static final int HEADER_ROWS = 3;         // 제목 + 헤더 행 수
 
     public ChecklistReporter(Sheets sheets, String spreadsheetId, String sheetName) {
