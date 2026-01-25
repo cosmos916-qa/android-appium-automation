@@ -8,5 +8,6 @@ Unity 게임의 이미지 매칭 기반 자동화 + Google Sheets 실시간 리�
 - Google Sheets 자동 리포팅
 
 ## 상세 가이드
-[Notion포트폴리오]([Notion포트폴리오](https://www.notion.so/Unity-QA-2ee788f1fc92808aab71ee7b660cd85a?source=copy_link))
+Notion 포트폴리오
+https://www.notion.so/Unity-QA-2ee788f1fc92808aab71ee7b660cd85a?source=copy_link
 
