@@ -5,27 +5,117 @@ import com.google.api.services.sheets.v4.model.ValueRange;
 import java.util.List;
 
 /**
- * Google Sheets 체크리스트 리포터 (동적 셀 주소 계산)
+ * 테스트 성적표 자동 기입 도구 (구글 시트 실시간 연동)
  *
- * <p>TC 번호를 기반으로 자동으로 셀 주소를 계산하여 결과를 기록합니다.</p>
+ * 이 클래스는 테스트 결과를 구글 스프레드시트에 자동으로 기록하는 "디지털 채점 조교"입니다.
+ * 마치 시험 채점 후 성적표에 점수를 적는 것처럼,
+ * 각 테스트 케이스의 Pass/Fail/Block 결과를 실시간으로 시트에 기록합니다.
  *
- * <h3>셀 주소 계산 규칙</h3>
- * <ul>
- *   <li>1행: 제목, 2행: 헤더</li>
- *   <li>3행부터: 실제 데이터 (TC01 → F3, TC02 → F4)</li>
- *   <li>공식: F{tcNo + 2}</li>
- * </ul>
+ * 📊 왜 구글 시트를 사용하나요?
+ *
+ * **기존 방식 (콘솔 로그만 사용):**
+ * - QA: "TC03이 실패했는데 언제 실패한 거죠?"
+ * - 개발자: "로그 파일 어디 있어요?"
+ * - PM: "전체 테스트 진행률이 어떻게 되나요?"
+ * → 정보 공유가 어렵고 실시간 모니터링 불가능
+ *
+ * **구글 시트 활용:**
+ * - 테스트 실행 중 실시간으로 결과 확인 가능
+ * - 팀원 모두가 동시에 같은 시트 조회 (권한만 있으면)
+ * - 히스토리 자동 보존 (언제 어떤 테스트가 실패했는지 추적)
+ * - 차트나 통계 자동 생성 가능
+ *
+ * 🎯 핵심 기능: 동적 셀 주소 계산
+ *
+ * **과거 방식 (하드코딩):**
+ * ```java
+ * writeTC01Result("Pass"); // G3에 기록
+ * writeTC02Result("Fail"); // G4에 기록
+ * writeTC03Result("Pass"); // G5에 기록
+ * // 테스트 케이스가 100개면 메서드도 100개 필요...
+ * ```
+ *
+ * **현재 방식 (동적 계산):**
+ * ```java
+ * writeTCResult(1, "Pass");  // TC 번호만 주면 자동으로 G3 계산
+ * writeTCResult(2, "Fail");  // 자동으로 G4 계산
+ * writeTCResult(99, "Pass"); // 자동으로 G101 계산
+ * // 테스트 케이스가 몇 개든 하나의 메서드로 처리!
+ * ```
+ *
+ * 📐 스프레드시트 구조 이해:
+ * ```
+ * A    B         C          D         E        F      G
+ * ┌────┬─────────┬──────────┬─────────┬────────┬──────┬────────┐
+ * │ 1  │ 테스트 체크리스트 (제목 행)                          │ ← 제목
+ * ├────┼─────────┼──────────┼─────────┼────────┼──────┼────────┤
+ * │ 2  │ TC No  │ 테스트명  │ 우선순위 │ 담당자 │ 상태 │ Result │ ← 컬럼 헤더
+ * ├────┼─────────┼──────────┼─────────┼────────┼──────┼────────┤
+ * │ 3  │ TC01   │ 앱 시작   │ High    │ 박성수 │ 진행 │ Pass   │ ← 실제 데이터 시작
+ * ├────┼─────────┼──────────┼─────────┼────────┼──────┼────────┤
+ * │ 4  │ TC02   │ 로고 검증 │ High    │ 박성수 │ 진행 │ Fail   │
+ * └────┴─────────┴──────────┴─────────┴────────┴──────┴────────┘
+ * ```
+ *
+ * 💡 셀 주소 계산 공식:
+ * - TC01 (tcNo=1) → 1 + 2 = 3행 → G3
+ * - TC02 (tcNo=2) → 2 + 2 = 4행 → G4
+ * - TC99 (tcNo=99) → 99 + 2 = 101행 → G101
+ *
  */
 public class ChecklistReporter {
 
+    /**
+     * 구글 시트 API 서비스 객체 (실제 시트에 접근하는 도구)
+     */
     private final Sheets sheets;
+
+    /**
+     * 대상 스프레드시트의 고유 식별 번호
+     * URL에서 추출: https://docs.google.com/spreadsheets/d/[이 부분]/edit
+     */
     private final String spreadsheetId;
+
+    /**
+     * 스프레드시트 내의 특정 시트(탭) 이름
+     * 예: "checklist", "smoke_test", "regression_test"
+     */
     private final String sheetName;
 
-    // 스프레드시트 구조 상수
-    private static final String RESULT_COLUMN = "G";  // Result 컬럼
-    private static final int HEADER_ROWS = 3;         // 제목 + 헤더 행 수
+    /**
+     * 테스트 결과를 기록할 컬럼 (G = 7번째 컬럼)
+     *
+     * 왜 G 컬럼인가요?
+     * - A~F: TC 번호, 테스트명, 우선순위, 담당자, 상태 등 정보
+     * - G: 자동화 테스트 결과 (Pass/Fail/Block)
+     *
+     * 변경이 필요한 경우:
+     * - 시트 구조가 바뀌어 결과 컬럼이 H로 이동 → "H"로 변경
+     */
+    private static final String RESULT_COLUMN = "G";
 
+    /**
+     * 데이터 시작 전 헤더 행 수
+     *
+     * 현재 구조:
+     * - 1행: 제목 ("테스트 체크리스트")
+     * - 2행: 컬럼 헤더 ("TC No", "테스트명", ...)
+     * - 3행부터: 실제 데이터
+     *
+     * 따라서 실제 계산에서는 tcNo + 2 사용
+     * (제목 1행 + 헤더 1행 = 2행 후 데이터 시작)
+     */
+    private static final int HEADER_ROWS = 3;
+
+    /**
+     * ChecklistReporter 초기화 (구글 시트 연결 정보 설정)
+     *
+     * 이 생성자는 BaseTestCase의 setUp()에서 호출됩니다.
+     *
+     * @param sheets 구글 시트 API 서비스 (GoogleSheetsClient에서 생성)
+     * @param spreadsheetId 대상 스프레드시트 ID
+     * @param sheetName 대상 시트(탭) 이름
+     */
     public ChecklistReporter(Sheets sheets, String spreadsheetId, String sheetName) {
         this.sheets = sheets;
         this.spreadsheetId = spreadsheetId;
@@ -33,34 +123,77 @@ public class ChecklistReporter {
     }
 
     /**
-     * TC 번호를 기반으로 동적으로 결과를 기록합니다.
+     * 테스트 케이스 결과를 구글 시트에 자동 기록 (핵심 메서드)
      *
-     * @param tcNo TC 번호 (1부터 시작: TC01=1, TC02=2, ...)
-     * @param result 테스트 결과 ("Pass", "Fail", "Block")
-     * @throws Exception Google Sheets API 호출 실패 시
+     * TC 번호만 알려주면 해당하는 셀 위치를 자동으로 계산하여 결과를 기록합니다.
+     *
+     * 🎯 동작 과정:
+     * 1. TC 번호로 행 번호 계산 (tcNo + 2)
+     * 2. 컬럼(G)과 행 번호를 조합하여 셀 주소 생성 (예: G3)
+     * 3. 시트명과 셀 주소를 조합하여 전체 범위 지정 (예: checklist!G3)
+     * 4. 구글 시트 API로 해당 셀에 결과 기록
+     *
+     * 📐 셀 주소 계산 예시:
+     * ```
+     * TC01 (tcNo=1):
+     *   rowNumber = 1 + 2 = 3
+     *   cellAddress = G3
+     *   range = checklist!G3
+     *
+     * TC02 (tcNo=2):
+     *   rowNumber = 2 + 2 = 4
+     *   cellAddress = G4
+     *   range = checklist!G4
+     * ```
+     *
+     * 💡 실전 활용 예시:
+     * ```java
+     * // BaseTestCase에서 자동 호출
+     * boolean appStarted = StartAppFlow.run(driver);
+     * recordResult(1, "AppStart", appStarted);
+     * // → 내부적으로 reporter.writeTCResult(1, "Pass") 호출
+     * // → 구글 시트 G3 셀에 "Pass" 기록
+     * ```
+     *
+     * ⚠️ 주의사항:
+     * - 네트워크 연결 필수 (구글 API 호출)
+     * - Service Account에 해당 시트 편집 권한 필요
+     * - 시트 구조와 HEADER_ROWS 설정이 일치해야 함
+     *
+     * @param tcNo 테스트 케이스 번호 (1부터 시작: TC01=1, TC02=2, ...)
+     * @param result 테스트 결과 문자열 ("Pass", "Fail", "Block")
+     * @throws Exception 구글 시트 API 호출 실패, 네트워크 오류, 권한 부족 등
      */
     public void writeTCResult(int tcNo, String result) throws Exception {
-        // 셀 주소 동적 계산: F{tcNo + 2}
-        // TC01(1) → F3, TC02(2) → F4, TC99(99) → F101
-        int rowNumber = tcNo + HEADER_ROWS;
+        // [STEP 1] 셀 주소 동적 계산
+        // TC01(1) → 3행, TC02(2) → 4행 (제목 + 헤더 2행 후 데이터 시작)
+        int rowNumber = tcNo + (HEADER_ROWS - 1);
+
+        // [STEP 2] 컬럼과 행 번호 조합 (예: G3, G4, G101)
         String cellAddress = RESULT_COLUMN + rowNumber;
+
+        // [STEP 3] 시트명 포함 전체 범위 지정 (예: checklist!G3)
         String range = sheetName + "!" + cellAddress;
 
+        // [STEP 4] 기록할 데이터 준비
         ValueRange body = new ValueRange().setValues(List.of(List.of(result)));
 
+        // [STEP 5] 구글 시트 API로 실제 기록 실행
         sheets.spreadsheets().values()
                 .update(spreadsheetId, range, body)
                 .setValueInputOption("RAW")
                 .execute();
 
+        // [LOG] 기록 완료 알림
         System.out.println("[Report] TC" + String.format("%02d", tcNo) +
                 " → " + cellAddress + " 기록 완료: " + result);
     }
 
     /**
-     * 여러 TC 결과를 일괄 기록합니다.
+     * 여러 테스트 결과를 한 번에 일괄 기록 (배치 처리)
      *
-     * @param results TC 번호와 결과 맵 (예: {1: "Pass", 2: "Fail"})
+     * @param results TC 번호와 결과 맵 (예: {1: "Pass", 2: "Fail", 3: "Block"})
+     * @throws Exception 구글 시트 API 호출 실패 시
      */
     public void writeBatchResults(java.util.Map<Integer, String> results) throws Exception {
         for (var entry : results.entrySet()) {
@@ -68,11 +201,20 @@ public class ChecklistReporter {
         }
     }
 
-    // 편의 메서드 (하위 호환성, 선택적 사용)
+    // ========================================
+    // 📦 레거시 메서드 (하위 호환성 유지)
+    // ========================================
+
+    /**
+     * @deprecated writeTCResult(1, result) 사용 권장
+     */
     public void writeTC01Result(String result) throws Exception {
         writeTCResult(1, result);
     }
 
+    /**
+     * @deprecated writeTCResult(2, result) 사용 권장
+     */
     public void writeTC02Result(String result) throws Exception {
         writeTCResult(2, result);
     }
