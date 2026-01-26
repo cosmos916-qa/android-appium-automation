@@ -7,6 +7,8 @@ import org.openqa.selenium.Point;
 import org.openqa.selenium.interactions.PointerInput;
 import org.openqa.selenium.interactions.Sequence;
 
+import com.example.appium_android_automation.marker.ImageAssert;
+
 import java.time.Duration;
 import java.util.List;
 
@@ -194,5 +196,70 @@ public class TouchActionHelper {
     // Point 객체로 터치
     public static void tap(AndroidDriver driver, Point point) {
         tap(driver, point.getX(), point.getY());
+    }
+
+    // ========== 🆕 FirstLaunchFlow용 이미지 기반 터치 메서드 ==========
+
+    /**
+     * 이미지를 찾아서 중앙 좌표를 터치합니다.
+     *
+     * 동작 흐름:
+     * 1. ImageAssert.findImageCenter()로 이미지 중앙 좌표 탐색
+     * 2. 좌표를 찾으면 tap() 메서드로 터치 수행
+     * 3. 좌표를 못 찾으면 명확한 예외 발생 (테스트 실패 처리)
+     *
+     * FirstLaunchFlow 사용 예시:
+     * - 다운로드 버튼 터치
+     * - 게임 시작 버튼 터치
+     * - 이용약관 동의 버튼 터치
+     */
+    public static void tapOnImageCenter(AndroidDriver driver, String resourcePath) {
+        System.out.println("[TouchAction] 이미지 기반 터치 시작: " + resourcePath);
+
+        // [Step 1] 이미지 중앙 좌표 탐색 (30초 타임아웃)
+        Point center = ImageAssert.findImageCenter(
+                driver,
+                resourcePath,
+                AppiumConfig.MAIN_MARKER_TIMEOUT_SEC
+        );
+
+        // [Step 2] 좌표 검증 및 실패 처리
+        if (center == null) {
+            String errorMsg = "이미지를 찾을 수 없어 터치할 수 없습니다: " + resourcePath;
+            System.err.println("[TouchAction] ❌ " + errorMsg);
+            throw new IllegalStateException(errorMsg);
+        }
+
+        // [Step 3] 찾은 좌표로 터치 수행
+        System.out.println("[TouchAction] 이미지 중앙 좌표 발견: (" +
+                center.getX() + ", " + center.getY() + ")");
+        tap(driver, center);
+
+        System.out.println("[TouchAction] 이미지 기반 터치 완료 ✓");
+    }
+
+    /**
+     * 이미지 기반 터치 (타임아웃 커스터마이징 버전)
+     *
+     * 용도: 로딩이 오래 걸리는 화면에서 사용
+     * 예시: 다운로드 완료 후 버튼이 늦게 나타나는 경우
+     */
+    public static void tapOnImageCenter(AndroidDriver driver, String resourcePath, int timeoutSec) {
+        System.out.println("[TouchAction] 이미지 기반 터치 시작: " + resourcePath +
+                " (타임아웃=" + timeoutSec + "초)");
+
+        Point center = ImageAssert.findImageCenter(driver, resourcePath, timeoutSec);
+
+        if (center == null) {
+            String errorMsg = "이미지를 찾을 수 없어 터치할 수 없습니다: " + resourcePath;
+            System.err.println("[TouchAction] ❌ " + errorMsg);
+            throw new IllegalStateException(errorMsg);
+        }
+
+        System.out.println("[TouchAction] 이미지 중앙 좌표 발견: (" +
+                center.getX() + ", " + center.getY() + ")");
+        tap(driver, center);
+
+        System.out.println("[TouchAction] 이미지 기반 터치 완료 ✓");
     }
 }

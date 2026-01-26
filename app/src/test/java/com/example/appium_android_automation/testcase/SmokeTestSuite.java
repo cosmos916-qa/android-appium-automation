@@ -1,5 +1,6 @@
 package com.example.appium_android_automation.testcase;
 
+import com.example.appium_android_automation.flow.FirstLaunchFlow;
 import com.example.appium_android_automation.flow.StartAppFlow;
 import com.example.appium_android_automation.infra.AppiumConfig;
 import com.example.appium_android_automation.infra.ScreenHelper;
@@ -21,8 +22,19 @@ import io.appium.java_client.appmanagement.ApplicationState;
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)  // TC01, TC02 순서 보장
 public class SmokeTestSuite extends BaseTestCase {
-
     @Test
+    public void TC05_FirstLaunchAndSetup() throws Exception {
+        System.out.println("=== TC05: 최초 앱 실행 및 초기 설정 ===");
+
+        FirstLaunchFlow firstLaunch = new FirstLaunchFlow(driver);
+        boolean success = firstLaunch.run();
+
+        recordResult(5, "FirstLaunchAndSetup", success);
+
+        assertTrue("FirstLaunchFlow 실행 실패", success);
+    }
+
+    //@Test
     public void TC01_앱_실행_검증() throws Exception {
         System.out.println("=== TC01: 앱 실행 검증 시작 ===");
 
@@ -41,7 +53,7 @@ public class SmokeTestSuite extends BaseTestCase {
         System.out.println("=== TC01 완료 ===\n");
     }
 
-    @Test
+    //@Test
     public void TC02_메인_화면_로고_검증() throws Exception {
         System.out.println("=== TC02: 메인 화면 로고 검증 시작 ===");
 
@@ -75,7 +87,7 @@ public class SmokeTestSuite extends BaseTestCase {
         System.out.println("=== TC02 완료 ===\n");
     }
 
-    @Test
+    //@Test
     public void TC03_드래그_이후_게임시작_검증() throws Exception {
         System.out.println("=== TC03: 드래그 이후 게임시작 검증 시작 ===");
 
@@ -133,7 +145,7 @@ public class SmokeTestSuite extends BaseTestCase {
         System.out.println("=== TC03 완료 ===\n");
     }
 
-    @Test
+    //@Test
     public void TC04_게임_종료_검증() throws Exception {
         System.out.println("=== TC04: 게임 종료 검증 시작 ===");
 

@@ -92,6 +92,46 @@ public class ImageAssert {
             return null;
         }
     }
+    // ========== 🆕 추가할 메서드 (Polling용 빠른 체크) ==========
+
+    /**
+     * 현재 화면에 이미지가 존재하는지 빠르게 확인합니다.
+     *
+     * 용도: FirstLaunchFlow의 다운로드 완료 감지 Polling
+     * 특징: 2초 짧은 타임아웃으로 즉시 응답 (기존 메서드는 30초 대기)
+     */
+    public static boolean isImageVisible(AndroidDriver driver, String resourcePath) {
+        Duration originalTimeout = null;
+
+        try {
+            String b64 = loadResourceAsBase64(resourcePath);
+
+            // 현재 암시적 대기시간 백업
+            originalTimeout = driver.manage().timeouts().getImplicitWaitTimeout();
+
+            // Polling용 짧은 타임아웃 설정
+            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(2));
+
+            // 이미지 찾기 시도
+            WebElement element = driver.findElement(AppiumBy.image(b64));
+            return element != null;
+
+        } catch (NoSuchElementException e) {
+            return false;  // 이미지 없음 (정상 케이스)
+
+        } catch (Exception e) {
+            System.err.println("[IMG] isImageVisible ERROR: " + e.getMessage());
+            return false;
+
+        } finally {
+            // 암시적 대기시간 원래 값으로 복구 (매우 중요!)
+            if (originalTimeout != null) {
+                driver.manage().timeouts().implicitlyWait(originalTimeout);
+            } else {
+                driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+            }
+        }
+    }
 
     // 리소스 이미지를 Base64 문자열로 변환 (내부용)
     private static String loadResourceAsBase64(String resourcePath) throws Exception {
