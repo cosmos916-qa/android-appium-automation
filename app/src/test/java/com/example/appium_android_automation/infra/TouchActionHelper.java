@@ -11,29 +11,12 @@ import java.time.Duration;
 import java.util.List;
 
 /**
- * 게임 내 터치/드래그 액션 유틸리티
- *
- * <p>Unity SurfaceView 기반 게임에서 좌표 기반 인터랙션 제공</p>
- *
- * @author SeongSoo Park
- * @since 2025-01-24
+ * 터치 및 드래그 동작 자동화
+ * - W3C Actions API 기반, Unity SurfaceView 좌표 제어
  */
 public class TouchActionHelper {
 
-    /**
-     * 지정된 좌표에서 드래그 앤 드롭을 수행합니다.
-     *
-     * <h3>사용 사례</h3>
-     * - 트릭컬 리바이브 캐릭터 볼 당기기
-     * - 게임 내 스와이프 제스처
-     *
-     * @param driver AndroidDriver 인스턴스
-     * @param startX 시작 X 좌표
-     * @param startY 시작 Y 좌표
-     * @param endX 끝 X 좌표
-     * @param endY 끝 Y 좌표
-     * @param durationMs 드래그 지속 시간 (밀리초)
-     */
+    // 드래그 앤 드롭 수행 (시작점 → 끝점)
     public static void dragAndDrop(AndroidDriver driver,
                                    int startX, int startY,
                                    int endX, int endY,
@@ -71,8 +54,9 @@ public class TouchActionHelper {
 
         System.out.println("[TouchAction] 드래그 완료 ✓");
     }
+    // 메인 화면 진입 동작 (해상도 독립적) - 화면 중앙에서 좌측으로 20% 드래그
     public static void dragCheekAdaptive(AndroidDriver driver) {
-        System.out.println("\n=== 캐릭터 볼 당기기 (해상도 독립적) ===");
+        System.out.println("\n=== 드래그 (해상도 독립적) ===");
 
         // [Step 1] 화면 정보 수집
         Dimension size = ScreenHelper.getScreenSize(driver);
@@ -107,12 +91,12 @@ public class TouchActionHelper {
         // [Step 5] 실제 드래그 수행
         dragAndDrop(driver, startX, startY, endX, endY, AppiumConfig.CHEEK_DRAG_DURATION_MS);
 
-        System.out.println("=== 캐릭터 볼 당기기 완료 ===\n");
+        System.out.println("=== 드래그 완료 ===\n");
     }
 
-    //작은 캐릭터(좌표가 안맞는 경우 사용할 수 있는 함수)
+    // 메인 화면 진입 동작 (우하단 오프셋) - 중앙에서 우하단 10% 치우친 위치에서 드래그
     public static void dragCheekWithOffset(AndroidDriver driver) {
-        System.out.println("\n=== 캐릭터 볼 당기기 (우하단 오프셋 버전) ===");
+        System.out.println("\n=== 드래그 (우하단 오프셋 버전) ===");
 
         // [Step 1] 화면 정보 수집
         Dimension size = ScreenHelper.getScreenSize(driver);
@@ -160,7 +144,7 @@ public class TouchActionHelper {
         // [Step 7] 실제 드래그 수행
         dragAndDrop(driver, startX, startY, endX, endY, AppiumConfig.CHEEK_DRAG_DURATION_MS);
 
-        System.out.println("=== 캐릭터 볼 당기기 완료 ===\n");
+        System.out.println("=== 드래그 완료 ===\n");
     }
 
     /**
@@ -179,13 +163,7 @@ public class TouchActionHelper {
                 AppiumConfig.CHEEK_DRAG_DURATION_MS
         );
     }
-    /**
-     * 지정된 좌표를 터치합니다 (단순 탭).
-     *
-     * @param driver AndroidDriver 인스턴스
-     * @param x X 좌표
-     * @param y Y 좌표
-     */
+    // 좌표 터치 (단순 탭)
     public static void tap(AndroidDriver driver, int x, int y) {
         System.out.println("[TouchAction] 터치 실행: (" + x + ", " + y + ")");
 
@@ -213,12 +191,7 @@ public class TouchActionHelper {
         System.out.println("[TouchAction] 터치 완료 ✓");
     }
 
-    /**
-     * Point 객체를 받아 해당 좌표를 터치합니다.
-     *
-     * @param driver AndroidDriver 인스턴스
-     * @param point 터치할 좌표
-     */
+    // Point 객체로 터치
     public static void tap(AndroidDriver driver, Point point) {
         tap(driver, point.getX(), point.getY());
     }

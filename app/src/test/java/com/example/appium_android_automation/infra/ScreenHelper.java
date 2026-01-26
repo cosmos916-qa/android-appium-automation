@@ -5,43 +5,32 @@ import org.openqa.selenium.Dimension;
 import org.openqa.selenium.ScreenOrientation;
 
 /**
- * 화면 해상도 및 방향 처리 유틸리티
- *
- * <p>다양한 디바이스 해상도와 화면 방향에 대응하는 좌표 계산 제공</p>
+ * 화면 해상도 측정 및 좌표 계산 유틸리티
+ * - 해상도 독립적 터치 좌표 계산 지원
  */
 public class ScreenHelper {
 
-    /**
-     * 현재 화면 해상도 정보를 가져옵니다.
-     */
+    // 현재 화면 해상도 반환 (width x height)
     public static Dimension getScreenSize(AndroidDriver driver) {
         return driver.manage().window().getSize();
     }
 
-    /**
-     * 현재 화면 방향을 가져옵니다.
-     */
+    // 현재 화면 방향 반환 (PORTRAIT/LANDSCAPE)
     public static ScreenOrientation getOrientation(AndroidDriver driver) {
         return driver.getOrientation();
     }
 
-    /**
-     * 화면 중앙 X 좌표를 계산합니다.
-     */
+    // 화면 중앙 X 좌표 계산
     public static int getCenterX(AndroidDriver driver) {
         return getScreenSize(driver).getWidth() / 2;
     }
 
-    /**
-     * 화면 중앙 Y 좌표를 계산합니다.
-     */
+    // 화면 중앙 Y 좌표 계산
     public static int getCenterY(AndroidDriver driver) {
         return getScreenSize(driver).getHeight() / 2;
     }
 
-    /**
-     * 화면 정보를 콘솔에 출력합니다 (디버깅용).
-     */
+    // 화면 정보 콘솔 출력 (디버깅용)
     public static void printScreenInfo(AndroidDriver driver) {
         Dimension size = getScreenSize(driver);
         ScreenOrientation orientation = getOrientation(driver);

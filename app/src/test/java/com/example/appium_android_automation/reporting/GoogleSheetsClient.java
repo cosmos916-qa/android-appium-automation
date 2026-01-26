@@ -13,21 +13,8 @@ import java.io.InputStream;
 import java.util.List;
 
 /**
- * Google Sheets API 클라이언트 생성 유틸리티
- *
- * <p>Service Account 인증 방식으로 Google Sheets 자동 연동을 제공합니다.
- * 테스트 결과를 팀원들과 실시간 공유할 수 있는 핵심 차별화 기능입니다.</p>
- *
- * <h3>사전 준비사항</h3>
- * <ol>
- *   <li>Google Cloud Console에서 Service Account 생성 및 JSON 키 다운로드</li>
- *   <li>Sheets API 활성화</li>
- *   <li>대상 스프레드시트에 Service Account 이메일 편집 권한 부여</li>
- *   <li>app/src/test/resources/credentials/ 경로에 JSON 파일 배치</li>
- * </ol>
- *
- * @author [Your Name]
- * @since 2025-01-24
+ * Google Sheets API 클라이언트 생성
+ * - Service Account 인증 기반 Sheets 서비스 생성
  */
 public class GoogleSheetsClient {
 
@@ -40,12 +27,8 @@ public class GoogleSheetsClient {
      */
     private static final String SERVICE_ACCOUNT_RESOURCE = "credentials/google-service-account.json";
 
-    /**
-     * 인증된 Google Sheets 서비스 객체를 생성합니다.
-     *
-     * @return 테스트 결과 기록이 가능한 Sheets API 클라이언트
-     * @throws Exception 인증 파일 누락 또는 네트워크 오류 시
-     */
+    // Service Account 인증으로 Sheets 서비스 생성
+    // 성공 시: 인증된 Sheets 객체, 실패 시: Exception
     public static Sheets createSheetsService() throws Exception {
         // 신뢰할 수 있는 HTTP 전송 계층 생성
         final NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();

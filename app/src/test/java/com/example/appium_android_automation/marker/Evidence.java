@@ -9,7 +9,14 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * 테스트 증거 수집 - 화면 캡처 및 파일 저장
+ */
 public class Evidence {
+
+    // 현재 화면을 캡처하여 build/reports/evidence 폴더에 저장
+    // 파일명: {namePrefix}_yyyyMMdd_HHmmss.png
+    // 반환: 저장된 파일 경로
 
     public static String saveScreenshot(AndroidDriver driver, String namePrefix) throws Exception {
         File src = driver.getScreenshotAs(OutputType.FILE);

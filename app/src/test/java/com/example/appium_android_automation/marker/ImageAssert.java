@@ -9,11 +9,14 @@ import java.io.InputStream;
 import java.time.Duration;
 import java.util.Base64;
 
+/**
+ * Unity 앱 이미지 매칭 검증
+ * - OpenCV 기반 화면 요소 탐지 및 좌표 반환
+ */
+
 public class ImageAssert {
-    /**
-     * 화면에 특정 이미지가 나타날 때까지 대기하고 검증합니다.
-     * Appium의 OpenCV 기반 이미지 매칭 기능을 활용합니다.
-     */
+    // 이미지가 화면에 나타날 때까지 대기 후 존재 여부 반환
+    // 성공 시: true, 타임아웃 시: false
     public static boolean waitUntilImageVisible(AndroidDriver driver, String resourcePath, int timeoutSec) {
         System.out.println("[IMG] 이미지 매칭 시작: " + resourcePath + " (타임아웃=" + timeoutSec + "초)");
 
@@ -43,14 +46,8 @@ public class ImageAssert {
             return false;
         }
     }
-    /**
-     * 이미지를 찾고 중앙 좌표를 반환합니다 (터치용).
-     *
-     * @param driver AndroidDriver 인스턴스
-     * @param resourcePath 이미지 리소스 경로
-     * @param timeoutSec 타임아웃 (초)
-     * @return 이미지 중앙 좌표, 실패 시 null
-     */
+    // 이미지를 찾고 중앙 좌표 반환 (터치용)
+    // 성공 시: Point 객체, 실패 시: null
     public static Point findImageCenter(AndroidDriver driver, String resourcePath, int timeoutSec) {
         System.out.println("[IMG] 이미지 좌표 탐색 시작: " + resourcePath + " (타임아웃=" + timeoutSec + "초)");
 
@@ -96,6 +93,7 @@ public class ImageAssert {
         }
     }
 
+    // 리소스 이미지를 Base64 문자열로 변환 (내부용)
     private static String loadResourceAsBase64(String resourcePath) throws Exception {
         InputStream in = ImageAssert.class.getClassLoader().getResourceAsStream(resourcePath);
         if (in == null) {

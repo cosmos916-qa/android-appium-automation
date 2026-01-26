@@ -5,16 +5,8 @@ import com.google.api.services.sheets.v4.model.ValueRange;
 import java.util.List;
 
 /**
- * Google Sheets 체크리스트 리포터 (동적 셀 주소 계산)
- *
- * <p>TC 번호를 기반으로 자동으로 셀 주소를 계산하여 결과를 기록합니다.</p>
- *
- * <h3>셀 주소 계산 규칙</h3>
- * <ul>
- *   <li>1행: 제목, 2행: 헤더</li>
- *   <li>3행부터: 실제 데이터 (TC01 → F3, TC02 → F4)</li>
- *   <li>공식: F{tcNo + 2}</li>
- * </ul>
+ * Google Sheets 테스트 결과 기록
+ * - TC 번호 기반 동적 셀 주소 계산 및 결과 기록
  */
 public class ChecklistReporter {
 
@@ -32,16 +24,8 @@ public class ChecklistReporter {
         this.sheetName = sheetName;
     }
 
-    /**
-     * TC 번호를 기반으로 동적으로 결과를 기록합니다.
-     *
-     * @param tcNo TC 번호 (1부터 시작: TC01=1, TC02=2, ...)
-     * @param result 테스트 결과 ("Pass", "Fail", "Block")
-     * @throws Exception Google Sheets API 호출 실패 시
-     */
+    // TC 번호 기반 결과 기록 (TC01 → G3, TC02 → G4)
     public void writeTCResult(int tcNo, String result) throws Exception {
-        // 셀 주소 동적 계산: F{tcNo + 2}
-        // TC01(1) → F3, TC02(2) → F4, TC99(99) → F101
         int rowNumber = tcNo + HEADER_ROWS;
         String cellAddress = RESULT_COLUMN + rowNumber;
         String range = sheetName + "!" + cellAddress;
@@ -57,11 +41,7 @@ public class ChecklistReporter {
                 " → " + cellAddress + " 기록 완료: " + result);
     }
 
-    /**
-     * 여러 TC 결과를 일괄 기록합니다.
-     *
-     * @param results TC 번호와 결과 맵 (예: {1: "Pass", 2: "Fail"})
-     */
+    // 여러 TC 결과 일괄 기록
     public void writeBatchResults(java.util.Map<Integer, String> results) throws Exception {
         for (var entry : results.entrySet()) {
             writeTCResult(entry.getKey(), entry.getValue());

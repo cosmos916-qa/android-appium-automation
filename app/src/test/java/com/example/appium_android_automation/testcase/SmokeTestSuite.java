@@ -17,15 +17,7 @@ import io.appium.java_client.appmanagement.ApplicationState;
 
 /**
  * 스모크 테스트 스위트 - 핵심 기능 체크리스트
- *
- * <p>트릭컬 리바이브의 핵심 기능들을 빠르게 검증하는 스모크 테스트</p>
- *
- * <h3>포함 TC</h3>
- * <ul>
- *   <li>TC01: 앱 실행 검증</li>
- *   <li>TC02: 메인 로고 검증</li>
- *   <li>TC03-TC05: 향후 확장 예정</li>
- * </ul>
+ * TC01: 앱 실행, TC02: 메인 화면, TC03: 메인 진입 동작, TC04: 앱 종료
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)  // TC01, TC02 순서 보장
 public class SmokeTestSuite extends BaseTestCase {
@@ -35,7 +27,7 @@ public class SmokeTestSuite extends BaseTestCase {
         System.out.println("=== TC01: 앱 실행 검증 시작 ===");
 
         // 앱 실행
-        System.out.println("[1/2] 트릭컬 리바이브 앱 실행 중...");
+        System.out.println("[1/2] 앱 실행 중...");
         boolean appStarted = StartAppFlow.run(driver);
         System.out.println("→ 앱 실행 결과: " + (appStarted ? "성공 ✓" : "실패 ✗"));
 
@@ -83,26 +75,9 @@ public class SmokeTestSuite extends BaseTestCase {
         System.out.println("=== TC02 완료 ===\n");
     }
 
-    /**
-     * TC03: 캐릭터 볼 당기기 게임 시작 검증
-     *
-     * <h3>검증 목적</h3>
-     * 트릭컬 리바이브의 핵심 인터랙션인 캐릭터 볼 당기기를 통한 게임 시작 확인
-     *
-     * <h3>검증 전략</h3>
-     * <ol>
-     *   <li>전제조건: 메인 화면 진입 확인 (TC02 로고 검증 완료)</li>
-     *   <li>Action: 좌표 기반 드래그 (540,1730 → 540,1500)</li>
-     *   <li>Verification: 게임 시작 후 특정 UI 이미지 등장 확인</li>
-     * </ol>
-     *
-     * <h3>Pass 조건</h3>
-     * - 드래그 후 게임 시작 마커 이미지가 15초 내 등장
-     * - 또는 게임 로비/스테이지 화면의 고유 UI 요소 확인
-     */
     @Test
-    public void TC03_캐릭터_볼당기기_게임시작_검증() throws Exception {
-        System.out.println("=== TC03: 캐릭터 볼당기기 게임시작 검증 시작 ===");
+    public void TC03_드래그_이후_게임시작_검증() throws Exception {
+        System.out.println("=== TC03: 드래그 이후 게임시작 검증 시작 ===");
 
         // [Step 1] 전제조건 확인
         System.out.println("[1/5] 전제조건 확인: 메인 화면 진입 체크...");
@@ -132,7 +107,7 @@ public class SmokeTestSuite extends BaseTestCase {
         ScreenHelper.printScreenInfo(driver);
 
         // [Step 3] 캐릭터 볼 당기기 (⭐ 개선된 해상도 독립적 버전!)
-        System.out.println("[3/5] 캐릭터 볼 당기기 드래그 실행 중...");
+        System.out.println("[3/5] 드래그 실행 중...");
         TouchActionHelper.dragCheekAdaptive(driver);    //기존 중앙 방식
         //TouchActionHelper.dragCheekWithOffset(driver);  // 작은 캐릭터 전용
         System.out.println("→ 드래그 완료 ✓");
@@ -154,28 +129,10 @@ public class SmokeTestSuite extends BaseTestCase {
         // 결과 기록 (TC03 → F6 셀)
         recordResult(3, "CheekDragStart", gameStarted);
 
-        assertTrue("TC03 실패: 캐릭터 볼당기기 게임 시작 미동작", gameStarted);
+        assertTrue("TC03 실패: 드래그 이후 게임 시작 미동작", gameStarted);
         System.out.println("=== TC03 완료 ===\n");
     }
-    /**
-     * TC04: 게임 종료 검증
-     *
-     * <h3>검증 목적</h3>
-     * Android Back 버튼 → 종료 확인 팝업 → 종료 버튼 터치 → 앱 종료 전체 플로우 검증
-     *
-     * <h3>검증 전략</h3>
-     * <ol>
-     *   <li>전제조건: 게임 실행 중 (TC03 완료 상태)</li>
-     *   <li>Android Back 키 입력으로 종료 팝업 트리거</li>
-     *   <li>이미지 매칭으로 "종료" 버튼 위치 탐지</li>
-     *   <li>좌표 기반 터치로 종료 버튼 클릭</li>
-     *   <li>앱 상태 확인으로 종료 여부 검증</li>
-     * </ol>
-     *
-     * <h3>Pass 조건</h3>
-     * - 종료 버튼 이미지 매칭 성공
-     * - 터치 후 앱이 RUNNING_IN_FOREGROUND 상태가 아님
-     */
+
     @Test
     public void TC04_게임_종료_검증() throws Exception {
         System.out.println("=== TC04: 게임 종료 검증 시작 ===");
@@ -186,7 +143,7 @@ public class SmokeTestSuite extends BaseTestCase {
 
         if (currentState != ApplicationState.RUNNING_IN_FOREGROUND) {
             recordBlock(4, "GameExit", "게임 미실행 (TC01-TC03 선행 필요)");
-            fail("TC04 실행 불가: 게임이 포그라운드에서 실행 중이 아님");
+            fail("TC04 실행 불가: 앱이 포그라운드에서 실행 중이 아님");
             return;
         }
         System.out.println("→ 전제조건 통과: 게임 실행 중 ✓");
