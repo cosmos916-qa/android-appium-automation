@@ -1,6 +1,7 @@
 package com.example.appium_android_automation.testcase;
 
 import com.example.appium_android_automation.flow.FirstLaunchFlow;
+import com.example.appium_android_automation.flow.LoginFlow;
 import com.example.appium_android_automation.flow.StartAppFlow;
 import com.example.appium_android_automation.infra.AppiumConfig;
 import com.example.appium_android_automation.infra.ScreenHelper;
@@ -22,7 +23,27 @@ import io.appium.java_client.appmanagement.ApplicationState;
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)  // TC01, TC02 순서 보장
 public class SmokeTestSuite extends BaseTestCase {
+    /**
+     * TC06: 구글 계정 최초 로그인
+     *
+     * 전제조건: TC05 완료 (이용약관 동의 후 타이틀 화면)
+     */
     @Test
+    public void TC06_GoogleFirstLogin() throws Exception {
+        System.out.println("=== TC06: 구글 계정 최초 로그인 ===");
+
+        // 로그인 플로우 실행
+        LoginFlow loginFlow = new LoginFlow(driver);
+        boolean success = loginFlow.runFirstLogin(AppiumConfig.TARGET_GOOGLE_EMAIL);
+
+        // 결과 기록
+        recordResult(6, "GoogleFirstLogin", success);
+        assertTrue("구글 로그인 실패. 디버깅 캡처를 확인하세요.", success);
+
+        System.out.println("✅ TC06 완료: 구글 로그인 성공");
+    }
+
+    //@Test
     public void TC05_FirstLaunchAndSetup() throws Exception {
         System.out.println("=== TC05: 최초 앱 실행 및 초기 설정 ===");
 
@@ -35,7 +56,7 @@ public class SmokeTestSuite extends BaseTestCase {
     }
 
     //@Test
-    public void TC01_앱_실행_검증() throws Exception {
+    public void TC01_App_start_verification() throws Exception {
         System.out.println("=== TC01: 앱 실행 검증 시작 ===");
 
         // 앱 실행
@@ -54,7 +75,7 @@ public class SmokeTestSuite extends BaseTestCase {
     }
 
     //@Test
-    public void TC02_메인_화면_로고_검증() throws Exception {
+    public void TC02_Main_screen_logo_verification() throws Exception {
         System.out.println("=== TC02: 메인 화면 로고 검증 시작 ===");
 
         // [Step 1] 전제조건 확인
@@ -88,7 +109,7 @@ public class SmokeTestSuite extends BaseTestCase {
     }
 
     //@Test
-    public void TC03_드래그_이후_게임시작_검증() throws Exception {
+    public void TC03_game_start_after_drag() throws Exception {
         System.out.println("=== TC03: 드래그 이후 게임시작 검증 시작 ===");
 
         // [Step 1] 전제조건 확인
@@ -146,7 +167,7 @@ public class SmokeTestSuite extends BaseTestCase {
     }
 
     //@Test
-    public void TC04_게임_종료_검증() throws Exception {
+    public void TC04_game_exit_verification() throws Exception {
         System.out.println("=== TC04: 게임 종료 검증 시작 ===");
 
         // [Step 1] 전제조건 확인: 게임 실행 중

@@ -50,6 +50,23 @@ public class AppiumConfig {
     /** 이용약관 '모두 동의하고 시작' 버튼 (스크린샷 5번 하단) */
     public static final String TERMS_AGREE_ALL_BUTTON_RESOURCE = "images/terms_agree_all_button.png";
 
+    // ========== 구글 로그인 관련 설정 ==========
+
+    /** 타이틀 화면 "Google로그인" 버튼 이미지 */
+    public static final String GOOGLE_LOGIN_BUTTON_RESOURCE = "images/google_login_button.png";
+
+    /** 로그인 완료 후 메인 화면 마커 (기존 타겟 로고 재사용) */
+    public static final String LOGIN_SUCCESS_MARKER_RESOURCE = "images/target_logo.png";
+
+    /** 구글 계정 선택 화면 대기시간 */
+    public static final int ACCOUNT_SELECTION_TIMEOUT_SEC = 15;
+
+    /** 로그인 처리 완료 대기시간 */
+    public static final int LOGIN_PROCESSING_TIMEOUT_SEC = 20;
+
+    /** 테스트용 구글 계정 이메일 */
+    public static final String TARGET_GOOGLE_EMAIL = "cosmos9169951@gmail.com";
+
     // 레거시: 고정 좌표 드래그 (특정 해상도 전용, 사용 비권장)
     public static final int CHEEK_DRAG_START_X = 1560;
     public static final int CHEEK_DRAG_START_Y = 720;
