@@ -6,27 +6,29 @@
 [![Java](https://img.shields.io/badge/Java-23_(Target_17)-ED8B00?logo=openjdk&logoColor=white)](https://openjdk.org/)
 [![Appium](https://img.shields.io/badge/Appium-3.0.0--rc.1-6E4C9A?logo=appium&logoColor=white)](https://appium.io/)
 
-
 ---
 
 ## 💡 핵심 특징
 
-- **Unity 특화**: SurfaceView 이미지 매칭으로 UI 자동화
+- **Unity 특화**: SurfaceView 이미지 매칭 기반 UI 자동화
 - **범용성**: 레이어드 아키텍처로 일반 앱에도 즉시 적용 (70~80% 재사용)
 - **협업**: Google Sheets 실시간 Pass/Fail 리포팅
-- **확장성**: Test/Flow/Verification/Infra 계층 분리
+- **확장성**: Test / Flow / Verification / Infra 계층 분리
 
 ---
 
 ## 🛠️ 기술 스택
 
-**Framework**: Appium 3.0 + UiAutomator2 + Images Plugin  
-**Language**: Java 23 (Target 17) + JUnit 4  
-**Reporting**: Google Sheets API v4
+- **Framework**: Appium 3.0 + UiAutomator2 + Images Plugin  
+- **Language**: Java 23 (Target 17) + JUnit 4  
+- **Reporting**: Google Sheets API v4  
+
 
 ---
 
 ## 📁 프로젝트 구조
+
+```text
 android-appium-automation
 ├─ flow                    # Business Layer
 │  ├─ FirstLaunchFlow.java   # 최초 실행 6단계 통합 플로우
@@ -54,20 +56,19 @@ android-appium-automation
 └─ testcase                # Test Layer
    └─ SmokeTestSuite.java    # TC01~TC07 순차 실행
 
+```
 
-📖 상세 가이드
-더 자세한 내용은 Notion 포트폴리오를 참고하세요:
+
+## 📖 상세 가이드
+더 자세한 내용은 Notion 포트폴리오를 참고하세요.
 
 🔗 [![Notion Portfolio](https://img.shields.io/badge/Portfolio-Notion-black?logo=notion&logoColor=white)](https://melon-crowd-c24.notion.site/Unity-QA-2ee788f1fc92808aab71ee7b660cd85a?pvs=74)
 
+---
 
-개발/실행 환경 상세 정보
-Appium 환경 구축 가이드
-GitHub 형상관리 전략
-Google Sheets 자동 리포팅 상세
-Unity 게임 사용자 여정 검증 과정
-비게임 앱 적용 시나리오
-🤝 기여
-학습 목적 프로젝트이며, 피드백 환영합니다!
+## 🤝 기여
+학습 목적 프로젝트이며, 피드백은 언제나 환영합니다.
 
-🌟 Star this repository if you find it useful!
+🌟 **Star this repository if you find it useful!**
+
+
