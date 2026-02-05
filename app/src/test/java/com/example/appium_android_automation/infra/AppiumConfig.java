@@ -67,6 +67,36 @@ public class AppiumConfig {
     /** 테스트용 구글 계정 이메일 */
     public static final String TARGET_GOOGLE_EMAIL = "cosmos9169951@gmail.com";
 
+    /** 게임 로비 [≡] 메뉴 버튼 */
+    public static final String MENU_BUTTON_RESOURCE = "images/menu_button.png";
+
+    /** 메뉴 팝업 마커 ("메뉴" 텍스트) */
+    public static final String MENU_POPUP_MARKER_RESOURCE = "images/menu_popup_marker.png";
+
+    /** 설정 버튼 (메뉴 팝업 내) */
+    public static final String SETTINGS_BUTTON_RESOURCE = "images/settings_button.png";
+
+    /** 설정 팝업 마커 ("설정" 텍스트) */
+    public static final String SETTINGS_POPUP_MARKER_RESOURCE = "images/settings_popup_marker.png";
+
+    /** 기타 버튼 (설정 팝업 내) */
+    public static final String ETC_BUTTON_RESOURCE = "images/etc_button.png";
+
+    /** 로그아웃 버튼 (기타 섹션 내) */
+    public static final String LOGOUT_BUTTON_RESOURCE = "images/logout_button.png";
+
+    /** 로그아웃 확인 팝업 마커 */
+    public static final String LOGOUT_CONFIRM_POPUP_RESOURCE = "images/logout_confirm_popup.png";
+
+    /** 로그아웃 확인 버튼 */
+    public static final String LOGOUT_CONFIRM_BUTTON_RESOURCE = "images/logout_confirm_button.png";
+
+    /** 팝업 전환 대기시간 */
+    public static final int POPUP_TRANSITION_TIMEOUT_SEC = 10;
+
+    /** 로그아웃 완료 확인 대기시간 */
+    public static final int LOGOUT_VERIFICATION_TIMEOUT_SEC = 15;
+
     // 레거시: 고정 좌표 드래그 (특정 해상도 전용, 사용 비권장)
     public static final int CHEEK_DRAG_START_X = 1560;
     public static final int CHEEK_DRAG_START_Y = 720;

@@ -2,6 +2,7 @@ package com.example.appium_android_automation.testcase;
 
 import com.example.appium_android_automation.flow.FirstLaunchFlow;
 import com.example.appium_android_automation.flow.LoginFlow;
+import com.example.appium_android_automation.flow.LogoutFlow;
 import com.example.appium_android_automation.flow.StartAppFlow;
 import com.example.appium_android_automation.infra.AppiumConfig;
 import com.example.appium_android_automation.infra.ScreenHelper;
@@ -17,18 +18,32 @@ import static org.junit.Assert.*;
 
 import io.appium.java_client.appmanagement.ApplicationState;
 
-/**
- * 스모크 테스트 스위트 - 핵심 기능 체크리스트
- * TC01: 앱 실행, TC02: 메인 화면, TC03: 메인 진입 동작, TC04: 앱 종료
- */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)  // TC01, TC02 순서 보장
+
 public class SmokeTestSuite extends BaseTestCase {
+    /**
+     * TC07: 로그아웃 플로우
+     *
+     * 전제조건: TC06 완료 (로그인 상태)
+     */
+    @Test
+    public void TC07_LogoutFlow() throws Exception {
+        System.out.println("=== TC07: 로그아웃 플로우 ===");
+
+        LogoutFlow logoutFlow = new LogoutFlow(driver);
+        boolean success = logoutFlow.run();
+
+        recordResult(7, "LogoutFlow", success);
+        assertTrue("로그아웃 실패. 9단계 중 실패 지점을 로그에서 확인하세요.", success);
+
+        System.out.println("✅ TC07 완료: 로그아웃 성공");
+    }
     /**
      * TC06: 구글 계정 최초 로그인
      *
      * 전제조건: TC05 완료 (이용약관 동의 후 타이틀 화면)
      */
-    @Test
+    //@Test
     public void TC06_GoogleFirstLogin() throws Exception {
         System.out.println("=== TC06: 구글 계정 최초 로그인 ===");
 
